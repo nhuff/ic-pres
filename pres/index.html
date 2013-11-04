@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">		
+<head>
+	<meta charset="utf-8">
+	<title>Puppet a short intro</title>
+	<link rel="stylesheet" href="reveal/css/reveal.min.css">
+	<link rel="stylesheet" href="reveal/css/theme/beige.css" id="theme">		
+</head>
+
+<body>
+	<!-- Wrap the entire slide show in a div using the "reveal" class. -->
+	<div class="reveal">
+		<!-- Wrap all slides in a single "slides" class -->
+		<div class="slides">
+
+		<!-- ALL SLIDES GO HERE -->
+		<!-- Each section element contains an individual slide -->
+		<section>
+			<h1>Puppet</h1>
+			<p>A configuration managment system</p>				
+		</section>
+
+		<!-- Nodes -->
+		<section>
+			<section>
+				<h2>Nodes</h2>
+				<p>How you associate puppet code to hosts</p>
+			</section>
+			<section>
+				<h2>Examples</h2>
+				<pre><code>
+node 'testnode.test.com' {
+	include foo
+}
+
+node /test\d\d.test.com/ {
+	include bar
+}
+				</code></pre>
+			</section>
+		</section>
+
+		<!-- Resources -->
+		<section>
+			<section>
+				<h2>Resources</h2>
+				<p>The building blocks of a system</p>
+				<p>Defined in Ruby</p>
+				<p>Consist of a generic type and a specific provider</p>
+			</section>
+			<section>
+				<h2>Examples</h2>
+				<pre><code>
+file{'/tmp/test':
+	ensure  => 'file',
+	owner   => 'root',
+	group   => 'root',
+	mode    => '0755',
+	content => 'Hello World',
+}
+
+package{['tmux','tcpdump']:
+	ensure => 'latest',
+}	
+				</code></pre>
+			</section>
+      <section>
+        <h2>Virtual Resources</h2>
+        <p>Allows a resource to be defined once and "realized" in several seperate locations</p>
+        <p>Defined like a regular resource with an @ sign prefixed to it</p>
+        <p>Won't show up in the catalog unless realized with function or resource collector</p>
+      </section>
+      <section>
+        <h2>Examples</h2>
+        <pre><code>
+@user{'nrhuff':
+  uid => '1400',
+}
+
+realize(User['nrhuff'])
+
+User<| title == 'nrhuff' |>
+
+User<| title == 'nrhuff' |>{
+  group +> ['foo'],
+}
+        </code></pre>
+      </section>
+      <section>
+        <h2>Exported Resources</h2>
+        <p>Like virtual resources but can be realized on remote nodes</p>
+        <p>Use @@ instead of @</p>
+        <p>Use exported resource collector <<| |>></p>
+      </section>
+      <section>
+        <h2>Examples</h2>
+        <pre><code>
+#On mysql client
+@@firewall{"050 mysql-client-${::fqdn}":
+  proto  => 'tcp',
+  source => $::eth0_ip,
+  port   => '3306',
+  action => 'accept',
+  tag    => 'mysql',
+}
+
+#On Server
+Firewall<<| tag == 'mysql' |>>
+        </code></pre>
+      </section>
+		</section>
+
+		<!-- Language -->
+		
+    <section>
+      <section>
+        <h2>Variables</h2>
+        <p>Consist of a bareword preceded by a $</p>
+        <p>Example: <code>$var</code></p>
+        <p>Immutable once defined</p>
+      </section>
+      <section>
+        <h2>Can be set</h2> 
+        <ul>
+          <li>in a manifest</li>
+          <li>autopopulated as facts</li>
+          <li>automatic databinding</li>
+        </ul>
+      </section>
+    </section>
+		<section>
+			<section>
+				<h2>Data Types</h2>
+			</section>
+			<section>
+				<h2>Booleans</h2>
+				<pre><code>
+true
+false
+				</code></pre>
+			</section>
+			<section>
+				<h2>Strings</h2>
+				<pre><code>
+'Hello there'
+"Hello there ${var}"
+				</code></pre>
+			</section>
+			<section>
+				<h2>Numbers</h2>
+				<pre><code>
+8
+8.2
+				</code></pre>
+			</section>
+			<section>
+				<h2>Arrays</h2>
+				<pre><code>
+['one','two','three']
+--
+$foo = ['one','two','three']
+$foo[0] #'one'
+				</code></pre>
+			</section>
+			<section>
+			<h2>Hashes</h2>
+				<pre><code>
+{'one' => 'two', 'three' => 'four'}
+--
+$foo = {'one' => 'two', 'three' => 'four'}
+$foo['one'] # 'two'
+				</code></pre>
+			</section>
+			<section>
+				<h2>Resource Reference</h2>
+				<p>A pointer to a resource mostly used for ordering</p>
+				<pre><code>
+File['/tmp/foo']
+Package['httpd']
+				</code></pre>
+			</section>
+		</section>
+
+<!-- Operators -->
+		<section>
+			<h2>Operators</h2>
+			<ul>
+			<li>Comparison</li>
+			<li>Arithmetic</li>
+			<li>Boolean</li>
+			</li>
+		</section>
+
+<!-- Conditionals -->
+		<section>
+			<section>
+				<h2>Conditional Statements</h2>
+			</section>
+			<section>
+				<h2>if</h2>
+				<pre><code>
+if $foo == 'bar' {
+
+} elsif 5 > 3 {
+
+} else {
+
+}
+				</code></pre>
+			</section>
+			<section>
+				<h2>unless</h2>
+				<p>New in 3.0</p>
+				<pre><code>
+unless $mem > 1024 {
+
+}
+				</code></pre>
+			</section>
+			<section>
+				<h2>Case Statement</h2>
+				<pre><code>
+case $operatingsystem {
+	'Solaris':          { } 
+	'RedHat', 'CentOS': { }
+	default:            { }
+}
+				</code></pre>
+			</section>
+			<section>
+				<h2>Selector</h2>
+				<pre><code>
+$rootgroup = $osfamily ? {
+	'Solaris'          => 'wheel',
+	/(Darwin|FreeBSD)/ => 'wheel',
+	default            => 'root',
+}
+				</code></pre>
+			</section>
+		</section>
+		<!-- Functions -->
+		<section>
+      <section>
+        <h2>Functions</h2>
+        <p>Can return values and/or have side effects</p>
+        <p>Defined in Ruby and new ones can be added</p>
+        <p>Run during catalog compilation (Server Side)</p>
+      </section>
+      <section>
+        <h2>Examples</h2>
+        <pre><code>
+floor(32.1) #32
+concat(['1','2','3'],['4','5','6']) #['1','2','3','4','5','6']
+validate_hash({'one' => 'two'})
+validate_hash('asdfa') #abort compilation
+    </pre></code>
+  </section>
+		</section>
+		<!-- Classes -->
+		<section>
+			<section>
+				<h2>Classes</h2>
+				<p>Singleton containers for puppet code</p>
+			</section>
+			<section>
+				<h2>Examples</h2>
+				<pre><code>
+class foo { }
+
+class bar (
+	$ensure,
+	$baz = 'trunk'
+) { }
+
+--
+
+include foo
+
+class{'bar':
+	ensure => 'present',
+	baz    => 'bar',
+}
+				</code></pre>
+			</section>
+		</section>
+
+		<!-- Defines -->
+		<section>
+			<section>
+				<h2>Defined Types</h2>
+				<p>Resources defined in the Puppet DSL</p>
+			</section>
+		<section>
+				<h2>Example</h2>
+				<pre><code>
+define foo (
+	$uid
+) {
+	file{"/tmp/foo_${title}":
+		ensure => 'file',
+		owner  => $uid,
+	}
+	file{"/tmp/bar_${title}":
+		ensure => 'file',
+		owner  => $uid,
+	}
+}
+
+--
+
+foo{'test1': uid => 'bar'}
+				</code></pre>
+		</section>
+		</section>
+
+		<!-- Ordering	-->
+		<section>
+			<section>
+				<h2>Resource Ordering</h2>
+        <p>Resource order is not defined unless specified</p>
+        <p>(3.3+ changes this)</p>
+				<p>There are two ways to specify order<p>
+				<ol>
+					<li>Meta parameters</li>
+					<li>Chaining</li>
+				</ol>
+			</section>
+			<section>
+				<h2>Meta Parameters</h2>
+				<p>Available on classes,defined types,resources</p>
+				<ul>
+					<li>requires</li>
+					<li>before</li>
+					<li>notify</li>
+					<li>subscribe</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Chaining</h2>
+				<p>Define order using resource references</p>
+				<ul>
+					<li> A -> B # A before B</li>
+					<li> A ~> B # A notifies B</li>
+          <li> A -> Foo<| |> #Search</li>
+          <li> Yumrepo<| |> -> Package<| provider == 'yum' |> #more search</li>
+				</ul>
+			</section>
+		</section>
+    <!-- Looping -->
+    <section>
+      <section>
+        <h2>Looping</h2>
+        <p>There isn't any</p>
+      </section>
+      <section>
+        <h2>That is kind of a lie</h2>
+        <p>Soon to really be a lie</p>
+        <p>Currently a proposal to add some restricted looping</p>
+        <p>Can test it out in 3.2+ by enabling the future parser</p>
+        <p>Will probably have a final implementation in puppet 4</p>
+      </section>
+      <section>
+        <h2>What you have right now</h2>
+        <p>All resource types can take an array of titles to work on</p>
+        <p>A lot of functions to manipulate arrays</p>
+        <p>create_resource function can create resources from a hash structure</p>
+      </section>
+      <section>
+        <h2>Examples</h2>
+        <pre><code>
+package{['tmux','strace']:
+  ensure => 'installed',
+}
+
+$users = {
+  'mysql' => {uid => 500},
+  'nrhuff' => {uid => 501, gid => 501}
+}
+create_resources(user,$users)
+        </code></pre>
+      </section>
+    </section>
+		<!-- Modules -->
+		<section>
+      <section>
+        <h2>Modules</h2>
+        <p>Collection and namespacing mechanism that can contain</p>
+        <ul>
+          <li>Classes</li>
+          <li>Defined Types</li>
+          <li>Files</li>
+          <li>Templates</li>
+          <li>Function Definitions</li>
+          <li>Fact Definitions</li>
+          <li>Resource Definitions</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Module Patterns</h2>
+        <p>Not enforced by puppet</p>
+        <ul>
+          <li>Library Modules</li>
+          <li>Service Modules</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Library Modules</h2>
+        <ul>
+          <li>Focused on one thing</li>
+          <li>Very configurable</li>
+          <li>Generalizable to multiple environments</li>
+          <li>Publish to Forge</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Service modules</h2>
+        <ul>
+          <li>Combines library modules</li>
+          <li>Encodes your infrastructure decisions</li>
+          <li>Probably not useful outside of your environment</li>
+        </ul>
+      </section>
+		</section>
+
+		<!-- Puppet Run -->
+		<section>
+			<h2>Anatomy of a puppet run</h2>
+			<ol>
+				<li>Client connects to puppetmaster and sends facts</li>
+				<li>Puppetmaster combines node definition and facts to generate catalog</li>
+				<li>Puppetmaster sends catalog to client</li>
+				<li>Client runs catalog to converge configuration</li>
+        <li>Client pulls source files from puppetmaster if neccessary</li>
+				<li>Optionally client sends report to a report processor</li>
+			</ol>
+		</section>
+
+    <!-- Testing -->
+    <section>
+      <h2>Testing</h2>
+      <ul>
+        <li>rspec-puppet</li>
+        <li>rspec-system</li>
+      </ul>
+    </section>
+    <!-- Puppetdb -->
+    <section>
+      <section>
+        <h2>Puppetdb</h2>
+        <ul>
+          <li>Restful front end to puppet data</li>
+          <li>Can be backed by PostgreSQL or HSQLDB</li>
+          <li>Stores catalogs,facts,and reports for the puppet master</li>
+          <li>Optional, but makes things like exported resources actually useable</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Querying</h2>
+        <p>Puppetdb can be queried for multiple types of data</p>
+        <ul>
+          <li>Nodes</li>
+          <li>Facts</li>
+          <li>Report Data(1.5+)</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Example</h2>
+        <p>Find all resources that were broken on last puppet run</p>
+        <pre><code>
+#On puppetdb node
+curl -G http://localhost:8080/v3/events --data-urlencode \
+  "query=["and",["=","status","failure"],["=","latest-report?",true]]'
+        </code></pre>
+      </section>
+    </section>
+
+    <!-- Resources -->
+		<section>
+			<h2>Resources</h2>
+			<ul>
+				<li><a href=http://docs.puppetlabs.com/puppet/>Puppetlabs docs</a></li>
+				<li><a href=https://puppetlabs.com/blog/>Puppetlabs blog</a></li>
+				<li><a href=https://groups.google.com/forum/?fromgroups#!forum/puppet-users>Puppet Users Google Group</a></li>
+        <li><a href=http://www.planetpuppet.org/>Planet Puppet</a></li>
+        <li><a href=https://github.com/puppetlabs/armatures>Puppetlabs Armatures</a></li>
+			</ul>
+		</section>
+		</div>
+	</div>
+
+<script src="reveal/lib/js/head.min.js"></script>
+<script src="reveal/js/reveal.min.js"></script>
+
+<script>
+// Required, even if empty.
+Reveal.initialize({
+	controls: true,
+	progress: true,
+	history: true,
+	center: true,
+	dependencies: [
+		{ src: 'reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+		{ src: 'reveal/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+	]
+});
+</script>
+</body>
+</html>

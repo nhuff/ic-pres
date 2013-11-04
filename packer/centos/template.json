@@ -1,0 +1,38 @@
+{
+  "builders": [
+    {
+      "boot_command": [
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ],
+      "boot_wait": "10s",
+      "guest_os_type": "RedHat_64",
+      "http_directory": "http",
+      "iso_checksum": "4a5fa01c81cc300f4729136e28ebe600",
+      "iso_checksum_type": "md5",
+      "iso_url": "http://mirror.rit.edu/centos/6.4/isos/x86_64/CentOS-6.4-x86_64-minimal.iso",
+      "shutdown_command": "/sbin/shutdown -h now",
+      "ssh_password": "packer",
+      "ssh_username": "root",
+      "type": "virtualbox"
+    }
+  ],
+  "post-processors": [
+  {
+    "type": "vagrant",
+    "keep_input_artifact": true
+  }
+  ],
+  "provisioners": [
+    {
+      "scripts": [
+        "scripts/virtualbox.sh",
+        "scripts/vagrant.sh",
+        "scripts/puppet.sh",
+        "scripts/cleanup.sh",
+        "scripts/zerodisk.sh"
+      ],
+      "type": "shell"
+    }
+  ]
+}
+

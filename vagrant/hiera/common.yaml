@@ -1,0 +1,5 @@
+---
+mcollective::middleware_hosts:
+  - "puppet"
+
+s_mysql::root_password: 'asdf123'

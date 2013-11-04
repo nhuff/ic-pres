@@ -1,0 +1,7 @@
+forge "http://forge.puppetlabs.com"
+
+mod 'puppetlabs/puppetdb'
+mod 'puppetlabs/mcollective'
+mod 'puppetlabs/mysql'
+mod 'pdxcat/collectd'
+mod 'stahnma/epel'

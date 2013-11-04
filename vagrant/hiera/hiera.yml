@@ -1,0 +1,13 @@
+---
+:hierarchy:
+  - "fqdn/%{::clientcert}"
+  - "env/%{::environment}"
+  - "common"
+
+:backends:
+  - "yaml"
+
+:logger: "puppet"
+
+:yaml:
+  :datadir: '/vagrant/hiera'

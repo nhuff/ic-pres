@@ -1,0 +1,47 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.define "pm" do |pm|
+    pm.vm.box = "centos-64"
+    pm.vm.hostname = "puppet"
+    pm.vm.provision "puppet" do |p|
+      p.manifest_file = "pm.pp"
+      p.module_path = ["modules","modules-loc"]
+    end
+    pm.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--memory", "4096"]
+    end
+    pm.vm.network "private_network", ip: "10.0.0.2"
+  end
+
+  config.vm.define "centos" do |centos|
+    centos.vm.box = "centos-64"
+    centos.vm.hostname = "centos"
+    centos.vm.provision "shell", inline: "puppet resource host puppet ip=10.0.0.2"
+    centos.vm.provision "puppet_server" do |p|
+      p.puppet_server = "puppet"
+      p.options = "--onetime --ignorecache"
+    end
+    centos.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--memory", "1024"]
+    end
+    centos.vm.network "private_network", ip: "10.0.0.3"
+  end
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu-precise"
+    ubuntu.vm.hostname = "ubuntu"
+    ubuntu.vm.provision "shell", inline: "puppet resource host puppet ip=10.0.0.2"
+    ubuntu.vm.provision "puppet_server" do |p|
+      p.puppet_server = "puppet"
+      p.options = "--onetime --ignorecache"
+    end
+    ubuntu.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--memory", "1024"]
+    end
+    ubuntu.vm.network "private_network", ip: "10.0.0.4"
+  end
+end
