@@ -1,4 +1,4 @@
-# Minneapolis Ifracoders Presentation 2013-11-04
+# Minneapolis Infracoders Presentation 2013-11-04
 
 ## Contents
 
