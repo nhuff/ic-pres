@@ -10,6 +10,7 @@
 * Initial convergence of nodes takes two puppet runs
 * librarian-puppet has issues on Windows
 * The mcollective module seems to have a bad metadata file that needs to be removed
+* mysql module throws error that can be ignored on ubuntu box
 
 ## Prerequisites
 * Vagrant
