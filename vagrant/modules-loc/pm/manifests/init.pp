@@ -12,6 +12,7 @@ class pm {
   class {'puppetdb::master::config':
     puppetdb_soft_write_failure => true,
     manage_storeconfigs         => true,
+    strict_validation           => false,
   }
 
   exec{'/usr/sbin/puppetdb-ssl-setup':
