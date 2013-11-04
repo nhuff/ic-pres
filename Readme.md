@@ -11,6 +11,12 @@
 * librarian-puppet has issues on Windows
 * The mcollective module seems to have a bad metadata file that needs to be removed
 
+## Prequistes
+* Vagrant
+* Librarian Puppet
+* Packer
+* Virtualbox
+
 ## Running the vagrant environment
 1. Build the boxes using the packer templates in the `packer` directory
 2. Import the centos box as `centos-64` and the ubuntu box as `ubuntu-precise`
