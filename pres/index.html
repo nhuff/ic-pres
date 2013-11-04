@@ -502,7 +502,7 @@ foo::bar: "baz"
         <pre><code>
 #On puppetdb node
 curl -G http://localhost:8080/v3/events --data-urlencode \
-  "query=["and",["=","status","failure"],["=","latest-report?",true]]'
+  'query=["and",["=","status","failure"],["=","latest-report?",true]]'
         </code></pre>
       </section>
     </section>
