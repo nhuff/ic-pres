@@ -11,7 +11,7 @@
 * librarian-puppet has issues on Windows
 * The mcollective module seems to have a bad metadata file that needs to be removed
 
-## Prequistes
+## Prerequisites
 * Vagrant
 * Librarian Puppet
 * Packer
