@@ -18,6 +18,8 @@
 		<section>
 			<h1>Puppet</h1>
 			<p>A configuration managment system</p>				
+			<p>Nathan Huff</p> 
+                        <p>nhuff@acm.org</p>
 		</section>
 
 		<!-- Nodes -->
@@ -422,6 +424,37 @@ create_resources(user,$users)
       </section>
 		</section>
 
+    <!-- Hiera -->
+    <section>
+      <section>
+        <h2>Hiera</h2>
+        <ul>
+          <li>Hierarchical Pluggable Datastore</li>
+          <li>Seperate piece in 2.7 Integrated in 3.0</li>
+          <li>Multiple datasources available, YAML built in</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Lookup Functions</h2>
+        <ul>
+          <li>hiera()</li>
+          <li>hiera_array()</li>
+          <li>hiera_hash()</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Automatic Data Binding</h2>
+        <p>Automatically Bind Class parameters (3.0+)</p>
+        <pre><code>
+class foo (
+ $bar
+) {}
+
+foo::bar: "baz"
+        </code></pre>
+      </section>
+    </section>
+
 		<!-- Puppet Run -->
 		<section>
 			<h2>Anatomy of a puppet run</h2>
@@ -474,17 +507,6 @@ curl -G http://localhost:8080/v3/events --data-urlencode \
       </section>
     </section>
 
-    <!-- Resources -->
-		<section>
-			<h2>Resources</h2>
-			<ul>
-				<li><a href=http://docs.puppetlabs.com/puppet/>Puppetlabs docs</a></li>
-				<li><a href=https://puppetlabs.com/blog/>Puppetlabs blog</a></li>
-				<li><a href=https://groups.google.com/forum/?fromgroups#!forum/puppet-users>Puppet Users Google Group</a></li>
-        <li><a href=http://www.planetpuppet.org/>Planet Puppet</a></li>
-        <li><a href=https://github.com/puppetlabs/armatures>Puppetlabs Armatures</a></li>
-			</ul>
-		</section>
 		</div>
 	</div>
 
